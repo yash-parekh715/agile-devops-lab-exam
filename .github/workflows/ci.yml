@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flask pytest requests pytest-junitxml
+          pip install flask pytest requests
 
       - name: Start Flask API
         run: |
