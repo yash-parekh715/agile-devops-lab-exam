@@ -1,0 +1,50 @@
+name: CI Testing and Monitoring
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install flask pytest requests pytest-junitxml
+
+      - name: Start Flask API
+        run: |
+          nohup python app.py &
+          sleep 3
+
+      - name: Run Tests
+        run: |
+          pytest --junitxml=report.xml
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: report.xml
+
+      - name: Slack Notification
+        if: always()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: |
+            Testing Job: ${{ github.job }}
+            Result: ${{ job.status }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
