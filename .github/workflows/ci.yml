@@ -24,7 +24,7 @@ jobs:
 
       - name: Start Flask API
         run: |
-          nohup python app.py &
+          nohup python api.py &
           sleep 3
 
       - name: Run Tests
